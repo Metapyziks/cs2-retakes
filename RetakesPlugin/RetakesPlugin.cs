@@ -659,13 +659,6 @@ public class RetakesPlugin : BasePlugin
             Helpers.RemoveHelmetAndHeavyArmour(player);
             player.RemoveWeapons();
 
-            if (player == _planter && RetakesConfig.IsLoaded(_retakesConfig) &&
-                !_retakesConfig!.RetakesConfigData!.IsAutoPlantEnabled)
-            {
-                Helpers.Debug($"Player is planter and auto plant is disabled, allocating bomb.");
-                Helpers.GiveAndSwitchToBomb(player);
-            }
-
             if (!RetakesConfig.IsLoaded(_retakesConfig) ||
                 _retakesConfig!.RetakesConfigData!.EnableFallbackAllocation)
             {
@@ -679,6 +672,16 @@ public class RetakesPlugin : BasePlugin
         }
 
         RetakesPluginEventSenderCapability.Get()?.TriggerEvent(new AllocateEvent());
+
+        // Give bomb after allocating weapons, so the planter will keep it active
+        if (_planter is { } planter
+            && Helpers.IsValidPlayer(planter)
+            && RetakesConfig.IsLoaded(_retakesConfig)
+            && !_retakesConfig!.RetakesConfigData!.IsAutoPlantEnabled)
+        {
+            Helpers.Debug("Auto plant is disabled, allocating bomb.");
+            Helpers.GiveAndSwitchToBomb(planter);
+        }
 
         return HookResult.Continue;
     }
