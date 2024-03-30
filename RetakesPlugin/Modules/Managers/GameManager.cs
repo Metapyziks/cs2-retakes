@@ -1,10 +1,11 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using RetakesPluginShared;
 
 namespace RetakesPlugin.Modules.Managers;
 
-public class GameManager
+public class GameManager : IRetakesRoundTracker
 {
     private readonly Translator _translator;
     private Dictionary<int, int> _playerRoundScores = new();
@@ -245,4 +246,8 @@ public class GameManager
             }
         }
     }
+
+    int IRetakesRoundTracker.ConsecutiveRoundsWon => _consecutiveRoundsWon;
+
+    int IRetakesRoundTracker.ConsecutiveRoundWinsToScramble => _consecutiveRoundWinsToScramble;
 }

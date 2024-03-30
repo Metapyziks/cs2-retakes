@@ -12,7 +12,6 @@ using RetakesPluginShared.Enums;
 using RetakesPlugin.Modules.Configs;
 using RetakesPlugin.Modules.Managers;
 using RetakesPluginShared;
-using RetakesPluginShared.Events;
 using Helpers = RetakesPlugin.Modules.Helpers;
 
 namespace RetakesPlugin;
@@ -42,8 +41,9 @@ public class RetakesPlugin : BasePlugin
     private GameManager? _gameManager;
     private SpawnManager? _spawnManager;
     private BreakerManager? _breakerManager;
-
-    public static PluginCapability<IRetakesPluginEventSender> RetakesPluginEventSenderCapability { get; } = new("retakes_plugin:event_sender");
+    
+    public static PluginCapability<IRetakesRoundTracker> RetakesRoundTrackerCapability { get; } = new("retakes_plugin:round_tracker");
+    public static PluginCapability<IRetakesWeaponAllocator> RetakesWeaponAllocatorCapability { get; } = new( "retakes_plugin:weapon_allocator" );
     #endregion
 
     #region Configs
@@ -86,8 +86,7 @@ public class RetakesPlugin : BasePlugin
 
         AddCommandListener("jointeam", OnCommandJoinTeam);
 
-        var retakesPluginEventSender = new RetakesPluginEventSender();
-        Capabilities.RegisterPluginCapability(RetakesPluginEventSenderCapability, () => retakesPluginEventSender);
+        Capabilities.RegisterPluginCapability(RetakesRoundTrackerCapability, () => _gameManager!);
 
         if (hotReload)
         {
@@ -624,8 +623,6 @@ public class RetakesPlugin : BasePlugin
             AnnounceBombsite(_currentBombsite);
         }
 
-        RetakesPluginEventSenderCapability.Get()?.TriggerEvent(new AnnounceBombsiteEvent(_currentBombsite));
-
         return HookResult.Continue;
     }
 
@@ -645,15 +642,22 @@ public class RetakesPlugin : BasePlugin
             return HookResult.Continue;
         }
 
-        Helpers.Debug($"Trying to loop valid active players.");
-        foreach (var player in _gameManager.QueueManager.ActivePlayers.Where(Helpers.IsValidPlayer))
+        var validPlayers = _gameManager.QueueManager.ActivePlayers
+            .Where(Helpers.IsValidPlayer)
+            .ToArray();
+
+        var terrorists = validPlayers
+            .Where(x => x.Team == CsTeam.Terrorist)
+            .ToArray();
+
+        var counterTerrorists = validPlayers
+            .Where(x => x.Team == CsTeam.CounterTerrorist)
+            .ToArray();
+
+        Helpers.Debug("Trying to loop valid active players.");
+        foreach (var player in validPlayers)
         {
             Helpers.Debug($"[{player.PlayerName}] Handling allocation...");
-
-            if (!Helpers.IsValidPlayer(player))
-            {
-                continue;
-            }
 
             // Strip the player of all of their weapons and the bomb before any spawn / allocation occurs.
             Helpers.RemoveHelmetAndHeavyArmour(player);
@@ -671,7 +675,7 @@ public class RetakesPlugin : BasePlugin
             }
         }
 
-        RetakesPluginEventSenderCapability.Get()?.TriggerEvent(new AllocateEvent());
+        RetakesWeaponAllocatorCapability.Get()?.Allocate(terrorists, counterTerrorists);
 
         // Give bomb after allocating weapons, so the planter will keep it active
         if (_planter is { } planter
