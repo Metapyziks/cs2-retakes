@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RetakesPlugin", "RetakesPlugin\RetakesPlugin.csproj", "{6860A7B3-9E11-44CD-B88C-2107FE7F9699}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RetakesPluginShared", "RetakesPluginShared\RetakesPluginShared.csproj", "{8E1C433A-3B54-4200-8E21-7396F64FC402}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6860A7B3-9E11-44CD-B88C-2107FE7F9699}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6860A7B3-9E11-44CD-B88C-2107FE7F9699}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6860A7B3-9E11-44CD-B88C-2107FE7F9699}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6860A7B3-9E11-44CD-B88C-2107FE7F9699}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E1C433A-3B54-4200-8E21-7396F64FC402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E1C433A-3B54-4200-8E21-7396F64FC402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E1C433A-3B54-4200-8E21-7396F64FC402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E1C433A-3B54-4200-8E21-7396F64FC402}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B0C29EB7-FCB2-48F2-A3B9-DAFCA3F4A967}
+	EndGlobalSection
+EndGlobal
