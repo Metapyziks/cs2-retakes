@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Utils;
 using RetakesPluginShared;
 
@@ -16,6 +17,8 @@ public class GameManager : IRetakesRoundTracker
     public const int ScoreForKill = 50;
     public const int ScoreForAssist = 25;
     public const int ScoreForDefuse = 50;
+
+    public static PluginCapability<IRetakesTeamAssigner> RetakesTeamAssignerCapability { get; } = new("retakes_plugin:team_assigner");
 
     public GameManager(Translator translator, QueueManager queueManager, int? roundsToScramble, bool? isScrambleEnabled)
     {
@@ -233,6 +236,8 @@ public class GameManager : IRetakesRoundTracker
     {
         terrorists ??= new List<CCSPlayerController>();
         counterTerrorists ??= new List<CCSPlayerController>();
+
+        RetakesTeamAssignerCapability.Get()?.Assign(terrorists, counterTerrorists);
 
         foreach (var player in QueueManager.ActivePlayers.Where(Helpers.IsValidPlayer))
         {
