@@ -174,12 +174,6 @@ public static class Helpers
         return players;
     }
 
-    public static void GiveAndSwitchToBomb(CCSPlayerController player)
-    {
-        player.GiveNamedItem(CsItem.Bomb);
-        NativeAPI.IssueClientCommand((int)player.UserId!, "slot5");
-    }
-
     public static void RemoveHelmetAndHeavyArmour(CCSPlayerController player)
     {
         if (player.PlayerPawn.Value == null || player.PlayerPawn.Value.ItemServices == null)

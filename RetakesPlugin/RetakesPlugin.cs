@@ -684,7 +684,11 @@ public class RetakesPlugin : BasePlugin
             && !_retakesConfig!.RetakesConfigData!.IsAutoPlantEnabled)
         {
             Helpers.Debug("Auto plant is disabled, allocating bomb.");
-            Helpers.GiveAndSwitchToBomb(planter);
+
+            planter.GiveNamedItem( CsItem.Bomb );
+
+            var planterUserId = planter.UserId!.Value;
+            AddTimer( 0.15f, () => NativeAPI.IssueClientCommand( planterUserId, "slot5" ) );
         }
 
         return HookResult.Continue;
