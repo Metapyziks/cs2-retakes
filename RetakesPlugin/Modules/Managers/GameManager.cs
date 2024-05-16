@@ -214,13 +214,26 @@ public class GameManager : IRetakesRoundTracker
                 break;
         }
 
-
         if (_scrambleNextRound)
         {
             ScrambleTeams();
         }
 
-        BalanceTeams();
+        var players = QueueManager.ActivePlayers.Where( Helpers.IsValidPlayer )
+            .ToArray();
+
+        var terrorists = players
+            .Where( x => x.Team == CsTeam.Terrorist )
+            .ToList();
+
+        var counterTerrorists = players
+            .Where( x => x.Team == CsTeam.Terrorist )
+            .ToList();
+
+        if ( RetakesTeamAssignerCapability.Get()?.Assign( terrorists, counterTerrorists ) is HookResult.Continue )
+        {
+            BalanceTeams();
+        }
     }
 
     private List<CCSPlayerController> GetSortedActivePlayers(CsTeam? team = null)
@@ -236,8 +249,6 @@ public class GameManager : IRetakesRoundTracker
     {
         terrorists ??= new List<CCSPlayerController>();
         counterTerrorists ??= new List<CCSPlayerController>();
-
-        RetakesTeamAssignerCapability.Get()?.Assign(terrorists, counterTerrorists);
 
         foreach (var player in QueueManager.ActivePlayers.Where(Helpers.IsValidPlayer))
         {

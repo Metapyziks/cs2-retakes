@@ -8,5 +8,5 @@ namespace RetakesPluginShared;
 /// </summary>
 public interface IRetakesTeamAssigner
 {
-    void Assign(IList<CCSPlayerController> terrorists, IList<CCSPlayerController> counterTerrorists);
+    HookResult Assign(IReadOnlyList<CCSPlayerController> terrorists, IReadOnlyList<CCSPlayerController> counterTerrorists);
 }
