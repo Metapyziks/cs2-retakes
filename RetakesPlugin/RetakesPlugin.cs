@@ -19,7 +19,7 @@ namespace RetakesPlugin;
 [MinimumApiVersion(220)]
 public class RetakesPlugin : BasePlugin
 {
-    private const string Version = "2.0.4";
+    private const string Version = "2.0.5";
 
     #region Plugin info
     public override string ModuleName => "Retakes Plugin";
@@ -486,7 +486,8 @@ public class RetakesPlugin : BasePlugin
                 _retakesConfig?.RetakesConfigData?.ShouldForceEvenTeamsWhenPlayerCountIsMultipleOf10
             ),
             _retakesConfig?.RetakesConfigData?.RoundsToScramble,
-            _retakesConfig?.RetakesConfigData?.IsScrambleEnabled
+            _retakesConfig?.RetakesConfigData?.IsScrambleEnabled,
+            _retakesConfig?.RetakesConfigData?.ShouldRemoveSpectators
         );
 
         _breakerManager = new BreakerManager(
@@ -826,7 +827,13 @@ public class RetakesPlugin : BasePlugin
         // Ensure all team join events are silent.
         @event.Silent = true;
 
-        return HookResult.Continue;
+        if (_gameManager == null)
+        {
+            Helpers.Debug($"Game manager not loaded.");
+            return HookResult.Continue;
+        }
+
+        return _gameManager.RemoveSpectators(@event, _hasMutedVoices);
     }
 
     private HookResult OnCommandJoinTeam(CCSPlayerController? player, CommandInfo commandInfo)
