@@ -19,7 +19,7 @@ namespace RetakesPlugin;
 [MinimumApiVersion(220)]
 public class RetakesPlugin : BasePlugin
 {
-    private const string Version = "2.0.6";
+    private const string Version = "2.0.12";
 
     #region Plugin info
     public override string ModuleName => "Retakes Plugin";
@@ -56,9 +56,10 @@ public class RetakesPlugin : BasePlugin
     private CCSPlayerController? _planter;
     private CsTeam _lastRoundWinner = CsTeam.None;
     private Bombsite? _showingSpawnsForBombsite;
+    private Bombsite? _forcedBombsite;
 
     // TODO: We should really store this in SQLite, but for now we'll just store it in memory.
-    private readonly HashSet<CCSPlayerController> _hasMutedVoices = new();
+    private readonly HashSet<CCSPlayerController> _hasMutedVoices = [];
 
     private void ResetState()
     {
@@ -81,8 +82,11 @@ public class RetakesPlugin : BasePlugin
         MessagePrefix = _translator["retakes.prefix"];
 
         Helpers.Debug($"Plugin loaded!");
-
-        RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        
+        RegisterListener<Listeners.OnMapStart>(mapName =>
+        {
+            OnMapStart(mapName);
+        });
 
         AddCommandListener("jointeam", OnCommandJoinTeam);
 
@@ -96,6 +100,116 @@ public class RetakesPlugin : BasePlugin
     }
 
     #region Commands
+    [ConsoleCommand("css_mapconfig", "Forces a specific map config file to load.")]
+    [ConsoleCommand("css_setmapconfig", "Forces a specific map config file to load.")]
+    [ConsoleCommand("css_loadmapconfig", "Forces a specific map config file to load.")]
+    [CommandHelper(minArgs: 1, usage: "[filename]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [RequiresPermissions("@css/root")]
+    public void OnCommandMapConfig(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        if (!Helpers.IsValidPlayer(player))
+        {
+            return;
+        }
+
+        var mapConfigDirectory = Path.Combine(ModuleDirectory, "map_config");
+        
+        if (!Directory.Exists(mapConfigDirectory))
+        {
+            commandInfo.ReplyToCommand($"{MessagePrefix}No map configs found.");
+            return;
+        }
+        
+        var mapConfigFileName = commandInfo.GetArg(1).Trim().Replace(".json", "");
+        
+        var mapConfigFilePath = Path.Combine(mapConfigDirectory, $"{mapConfigFileName}.json");
+        
+        if (!File.Exists(mapConfigFilePath))
+        {
+            commandInfo.ReplyToCommand($"{MessagePrefix}Map config file not found.");
+            return;
+        }
+        
+        OnMapStart(Server.MapName, mapConfigFileName);
+        
+        commandInfo.ReplyToCommand($"{MessagePrefix}The new map config has been successfully loaded.");
+    }
+    
+    [ConsoleCommand("css_mapconfigs", "Displays a list of available map configs.")]
+    [ConsoleCommand("css_viewmapconfigs", "Displays a list of available map configs.")]
+    [ConsoleCommand("css_listmapconfigs", "Displays a list of available map configs.")]
+    [CommandHelper(whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [RequiresPermissions("@css/root")]
+    public void OnCommandMapConfigs(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        if (player == null || !Helpers.IsValidPlayer(player))
+        {
+            return;
+        }
+        
+        var mapConfigDirectory = Path.Combine(ModuleDirectory, "map_config");
+        
+        var files = Directory.GetFiles(mapConfigDirectory);
+        
+        // organise files alphabetically
+        Array.Sort(files);
+        
+        if (!Directory.Exists(mapConfigDirectory) || files.Length == 0)
+        {
+            commandInfo.ReplyToCommand($"{MessagePrefix}No map configs found.");
+            return;
+        }
+        
+        foreach (var file in files)
+        {
+            var transformedFile = file
+                .Replace($"{mapConfigDirectory}/", "")
+                .Replace(".json", "");
+            
+            commandInfo.ReplyToCommand($"{MessagePrefix}!mapconfig {transformedFile}");
+            player.PrintToConsole($"{MessagePrefix}!mapconfig {transformedFile}");
+        }
+        
+        commandInfo.ReplyToCommand($"{MessagePrefix}A list of available map configs has been outputted above.");
+    }
+    
+    [ConsoleCommand("css_forcebombsite", "Force the retakes to occur from a single bombsite.")]
+    [CommandHelper(minArgs: 1, usage: "[A/B]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [RequiresPermissions("@css/root")]
+    public void OnCommandForceBombsite(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        if (!Helpers.IsValidPlayer(player))
+        {
+            return;
+        }
+
+        var bombsite = commandInfo.GetArg(1).ToUpper();
+        if (bombsite != "A" && bombsite != "B")
+        {
+            commandInfo.ReplyToCommand($"{MessagePrefix}You must specify a bombsite [A / B].");
+            return;
+        }
+
+        _forcedBombsite = bombsite == "A" ? Bombsite.A : Bombsite.B;
+        
+        commandInfo.ReplyToCommand($"{MessagePrefix}The bombsite will now be forced to {_forcedBombsite}.");
+    }
+    
+    [ConsoleCommand("css_forcebombsitestop", "Clear the forced bombsite and return back to normal.")]
+    [CommandHelper(whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [RequiresPermissions("@css/root")]
+    public void OnCommandForceBombsiteStop(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        if (!Helpers.IsValidPlayer(player))
+        {
+            return;
+        }
+
+        _forcedBombsite = null;
+        
+        commandInfo.ReplyToCommand($"{MessagePrefix}The bombsite will no longer be forced.");
+    }
+    
     [ConsoleCommand("css_showspawns", "Show the spawns for the specified bombsite.")]
     [ConsoleCommand("css_spawns", "Show the spawns for the specified bombsite.")]
     [ConsoleCommand("css_edit", "Show the spawns for the specified bombsite.")]
@@ -444,9 +558,9 @@ public class RetakesPlugin : BasePlugin
     #endregion
 
     #region Listeners
-    private void OnMapStart(string mapName)
+    private void OnMapStart(string mapName, string? customMapConfig = null)
     {
-        Helpers.Debug($"OnMapStart listener triggered!");
+        Helpers.Debug("OnMapStart listener triggered!");
 
         ResetState();
 
@@ -457,9 +571,9 @@ public class RetakesPlugin : BasePlugin
         });
 
         // If we don't have a map config loaded, load it.
-        if (!MapConfig.IsLoaded(_mapConfig, Server.MapName))
+        if (!MapConfig.IsLoaded(_mapConfig, customMapConfig ?? mapName))
         {
-            _mapConfig = new MapConfig(ModuleDirectory, Server.MapName);
+            _mapConfig = new MapConfig(ModuleDirectory, customMapConfig ?? mapName);
             _mapConfig.Load();
         }
 
@@ -483,11 +597,13 @@ public class RetakesPlugin : BasePlugin
                 _retakesConfig?.RetakesConfigData?.MaxPlayers,
                 _retakesConfig?.RetakesConfigData?.TerroristRatio,
                 _retakesConfig?.RetakesConfigData?.QueuePriorityFlag,
-                _retakesConfig?.RetakesConfigData?.ShouldForceEvenTeamsWhenPlayerCountIsMultipleOf10
+                _retakesConfig?.RetakesConfigData?.ShouldForceEvenTeamsWhenPlayerCountIsMultipleOf10,
+                _retakesConfig?.RetakesConfigData?.ShouldPreventTeamChangesMidRound
             ),
             _retakesConfig?.RetakesConfigData?.RoundsToScramble,
             _retakesConfig?.RetakesConfigData?.IsScrambleEnabled,
-            _retakesConfig?.RetakesConfigData?.ShouldRemoveSpectators
+            _retakesConfig?.RetakesConfigData?.ShouldRemoveSpectators,
+            _retakesConfig?.RetakesConfigData?.IsBalanceEnabled
         );
 
         _breakerManager = new BreakerManager(
@@ -509,7 +625,6 @@ public class RetakesPlugin : BasePlugin
         }
 
         // TODO: We can make use of sv_human_autojoin_team 3 to prevent needing to do this.
-        player.TeamNum = (int)CsTeam.Spectator;
         player.ForceTeamTime = 3600.0f;
 
         // Create a timer to do this as it would occasionally fire too early.
@@ -520,6 +635,7 @@ public class RetakesPlugin : BasePlugin
                 return;
             }
 
+            player.ChangeTeam(CsTeam.Spectator);
             player.ExecuteClientCommand("teammenu");
         });
 
@@ -590,7 +706,7 @@ public class RetakesPlugin : BasePlugin
 
             if (_mapConfig != null)
             {
-                var numSpawns = Helpers.ShowSpawns(_mapConfig.GetSpawnsClone(), _showingSpawnsForBombsite);
+                Helpers.ShowSpawns(_mapConfig.GetSpawnsClone(), _showingSpawnsForBombsite);
             }
 
             return HookResult.Continue;
@@ -610,7 +726,7 @@ public class RetakesPlugin : BasePlugin
 
         // Reset round state.
         _breakerManager?.Handle();
-        _currentBombsite = Helpers.Random.Next(0, 2) == 0 ? Bombsite.A : Bombsite.B;
+        _currentBombsite = _forcedBombsite ?? (Helpers.Random.Next(0, 2) == 0 ? Bombsite.A : Bombsite.B);
         _gameManager.ResetPlayerScores();
 
         Helpers.Debug("Clearing _showingSpawnsForBombsite");
@@ -635,7 +751,7 @@ public class RetakesPlugin : BasePlugin
             Helpers.Debug($"Game manager not loaded.");
             return HookResult.Continue;
         }
-
+        
         // If we are in warmup, skip.
         if (Helpers.GetGameRules().WarmupPeriod)
         {
@@ -907,7 +1023,7 @@ public class RetakesPlugin : BasePlugin
     private void AnnounceBombsite(Bombsite bombsite, bool onlyCenter = false)
     {
         string[] bombsiteAnnouncers =
-        {
+        [
             "balkan_epic",
             "leet_epic",
             "professional_epic",
@@ -915,7 +1031,7 @@ public class RetakesPlugin : BasePlugin
             "seal_epic",
             "swat_epic",
             "swat_fem"
-        };
+        ];
 
         // Get translation message
         var numTerrorist = Helpers.GetCurrentNumPlayers(CsTeam.Terrorist);

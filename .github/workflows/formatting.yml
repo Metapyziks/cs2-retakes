@@ -1,17 +1,23 @@
-﻿name: Format check on pull request
+﻿name: Check the format of .cs files
 
 on:
   push:
     branches: [ "master" ]
+    paths:
+      - '**.cs'
+      - '**.csproj'
   pull_request:
     branches: [ "master" ]
+    paths:
+      - '**.cs'
+      - '**.csproj'
 
 jobs:
   dotnet-format:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: .NET Format (RetakesPlugin)
         uses: zyactions/dotnet-format@v1

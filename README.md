@@ -9,6 +9,10 @@ If you appreciate the project then please take the time to star the repository ð
 
 ![Star us](https://github.com/b3none/gdprconsent/raw/development/.github/README_ASSETS/star_us.png)
 
+## Server Hosting (Discounted)
+
+Looking for reliable server hosting? [Dathost](https://dathost.net/r/b3none/cs2-server-hosting) offers top-tier performance, easy server management, and excellent support, with servers available in multiple regions across the globe. Whether you're in North America, Europe, Asia, or anywhere else, [Dathost](https://dathost.net/r/b3none/cs2-server-hosting) has you covered. Use [this link](https://dathost.net/r/b3none/cs2-server-hosting) to get **30% off your first month**. Click [here]( https://dathost.net/r/b3none/cs2-server-hosting) to get started with the discount!
+
 ## Features / Roadmap
 - [x] Bombsite selection
 - [x] Per map configurations
@@ -30,8 +34,8 @@ If you appreciate the project then please take the time to star the repository ð
 - [x] Add a release zip file without spawns too
 
 ## Installation
-- Download the zip file from the [latest release](https://github.com/B3none/cs2-retakes/releases), and extract the contents into your `counterstrikesharp/plugins` directory.
-- Download the [shared plugin zip file](https://github.com/B3none/cs2-retakes/releases/download/2.0.0/cs2-retakes-plugin-shared-2.0.0.zip) and put it into your `counterstrikesharp/shared` directory.
+- Download the zip file from the [latest release](https://github.com/B3none/cs2-retakes/releases/latest), and extract the contents into your `addons/counterstrikesharp/plugins` directory.
+- Download the latest shared plugin and put it into your `addons/counterstrikesharp/shared` directory.
 
 ## Recommendations
 I also recommend installing these plugins for an improved player experience
@@ -64,19 +68,23 @@ When the plugin is first loaded it will create a `retakes_config.json` file in t
 | IsDebugMode                                       | Whether to enable debug output to the server console or not.                                                                                    | false      | false      | true       |
 | ShouldForceEvenTeamsWhenPlayerCountIsMultipleOf10 | Whether to force even teams when the active players is a multiple of 10 or not. (this means you will get 5v5 @ 10 players / 10v10 @ 20 players) | true       | false      | true       |
 | EnableFallbackBombsiteAnnouncement                | Whether to enable the fallback bombsite announcement.                                                                                           | true       | false      | true       |
-| ShouldRemoveSpectators                            | When a player is moved to spectators, remove them from all retake queues. Ensures that AFK plugins work as expected.                            | false      |    false      | true       |
+| ShouldRemoveSpectators                            | When a player is moved to spectators, remove them from all retake queues. Ensures that AFK plugins work as expected.                            | false      | false      | true       |
 
 ## Commands
-| Command         | Arguments                         | Description                                                          | Permissions |
-|-----------------|-----------------------------------|----------------------------------------------------------------------|-------------|
-| !showspawns     | <A / B>                           | Show the spawns for the specified bombsite.                          | @css/root   |
-| !addspawn       | <CT / T> <Y / N (can be planter)> | Adds a retakes spawn point for the bombsite spawns currently shown.  | @css/root   |
-| !removespawn    |                                   | Removes the nearest spawn point for the bombsite currently shown.    | @css/root   |
-| !nearestspawn   |                                   | Teleports the player to the nearest spawn.                           | @css/root   |
-| !hidespawns     |                                   | Exits the spawn editing mode.                                        | @css/root   |
-| !scramble       |                                   | Scrambles the teams next round.                                      | @css/admin  |
-| !voices         |                                   | Toggles whether or not to hear the bombsite voice announcements.     |             |
-| css_debugqueues |                                   | **SERVER ONLY** Shows the current queue state in the server console. |             |
+| Command            | Arguments                         | Description                                                          | Permissions |
+|--------------------|-----------------------------------|----------------------------------------------------------------------|-------------|
+| !forcebombsite     | <A / B>                           | Force the retakes to occur from a single bombsite.                   | @css/root   |
+| !forcebombsitestop |                                   | Clear the forced bombsite and return back to normal.                 | @css/root   |
+| !showspawns        | <A / B>                           | Show the spawns for the specified bombsite.                          | @css/root   |
+| !addspawn          | <CT / T> <Y / N (can be planter)> | Adds a retakes spawn point for the bombsite spawns currently shown.  | @css/root   |
+| !removespawn       |                                   | Removes the nearest spawn point for the bombsite currently shown.    | @css/root   |
+| !nearestspawn      |                                   | Teleports the player to the nearest spawn.                           | @css/root   |
+| !hidespawns        |                                   | Exits the spawn editing mode.                                        | @css/root   |
+| !mapconfig         | <Config file name>                | Forces a specific map config file to load.                           | @css/root   |
+| !mapconfigs        |                                   | Displays a list of available map configs.                            | @css/root   |
+| !scramble          |                                   | Scrambles the teams next round.                                      | @css/admin  |
+| !voices            |                                   | Toggles whether or not to hear the bombsite voice announcements.     |             |
+| css_debugqueues    |                                   | **SERVER ONLY** Shows the current queue state in the server console. |             |
 
 ## Stay up to date
 Subscribe to **release** notifications and stay up to date with the latest features and patches:

@@ -23,13 +23,13 @@ public class SpawnManager
 
         _spawns.Add(Bombsite.A, new Dictionary<CsTeam, List<Spawn>>()
         {
-            { CsTeam.Terrorist, new List<Spawn>()},
-            { CsTeam.CounterTerrorist, new List<Spawn>()}
+            { CsTeam.Terrorist, [] },
+            { CsTeam.CounterTerrorist, [] }
         });
         _spawns.Add(Bombsite.B, new Dictionary<CsTeam, List<Spawn>>()
         {
-            { CsTeam.Terrorist, new List<Spawn>()},
-            { CsTeam.CounterTerrorist, new List<Spawn>()}
+            { CsTeam.Terrorist, [] },
+            { CsTeam.CounterTerrorist, [] }
         });
 
         foreach (var spawn in _mapConfig.GetSpawnsClone())
@@ -42,7 +42,7 @@ public class SpawnManager
     {
         if (_spawns[bombsite][CsTeam.Terrorist].Count == 0 && _spawns[bombsite][CsTeam.CounterTerrorist].Count == 0)
         {
-            return new List<Spawn>();
+            return [];
         }
 
         if (team == null)
@@ -54,7 +54,7 @@ public class SpawnManager
     }
 
     /**
-     * This function returns a the player who should be the planter and moves all players to random spawns based on bomb site.
+     * This function returns the player who should be the planter and moves all players to random spawns based on bombsite.
      */
     public CCSPlayerController? HandleRoundSpawns(Bombsite bombsite, HashSet<CCSPlayerController> players)
     {

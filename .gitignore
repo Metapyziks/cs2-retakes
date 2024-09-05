@@ -1,4 +1,6 @@
 ﻿# Rider IDE
 /.idea
+/RetakesPlugin/.idea
+/RetakesPluginShared/.idea
 *.DotSettings.user
 .vs

@@ -14,19 +14,21 @@ public class GameManager : IRetakesRoundTracker
     private readonly int _consecutiveRoundWinsToScramble;
     private readonly bool _isScrambleEnabled;
     private readonly bool _removeSpectatorsEnabled;
+    private readonly bool _isBalanceEnabled;
     public const int ScoreForKill = 50;
     public const int ScoreForAssist = 25;
     public const int ScoreForDefuse = 50;
 
     public static PluginCapability<IRetakesTeamAssigner> RetakesTeamAssignerCapability { get; } = new("retakes_plugin:team_assigner");
 
-    public GameManager(Translator translator, QueueManager queueManager, int? roundsToScramble, bool? isScrambleEnabled, bool? RemoveSpectatorsEnabled)
+    public GameManager(Translator translator, QueueManager queueManager, int? roundsToScramble, bool? isScrambleEnabled, bool? removeSpectatorsEnabled, bool? isBalanceEnabled)
     {
         _translator = translator;
         QueueManager = queueManager;
         _consecutiveRoundWinsToScramble = roundsToScramble ?? 5;
         _isScrambleEnabled = isScrambleEnabled ?? true;
-        _removeSpectatorsEnabled = RemoveSpectatorsEnabled ?? false;
+        _removeSpectatorsEnabled = removeSpectatorsEnabled ?? false;
+        _isBalanceEnabled = isBalanceEnabled ?? true;
     }
 
     private bool _scrambleNextRound;
@@ -145,8 +147,8 @@ public class GameManager : IRetakesRoundTracker
 
     private void BalanceTeams()
     {
-        List<CCSPlayerController> newTerrorists = new();
-        List<CCSPlayerController> newCounterTerrorists = new();
+        List<CCSPlayerController> newTerrorists = [];
+        List<CCSPlayerController> newCounterTerrorists = [];
 
         var currentNumTerrorist = Helpers.GetCurrentNumPlayers(CsTeam.Terrorist);
         var numTerroristsNeeded = QueueManager.GetTargetNumTerrorists() - currentNumTerrorist;
@@ -207,7 +209,10 @@ public class GameManager : IRetakesRoundTracker
         switch (winningTeam)
         {
             case CsTeam.CounterTerrorist:
-                CounterTerroristRoundWin();
+                if (_isBalanceEnabled)
+                {
+                    CounterTerroristRoundWin();
+                }
                 break;
 
             case CsTeam.Terrorist:
@@ -233,7 +238,10 @@ public class GameManager : IRetakesRoundTracker
 
         if ( RetakesTeamAssignerCapability.Get()?.Assign( terrorists, counterTerrorists ) is HookResult.Continue )
         {
-            BalanceTeams();
+            if (_isBalanceEnabled)
+            {
+                BalanceTeams();
+            }
         }
     }
 
@@ -248,8 +256,8 @@ public class GameManager : IRetakesRoundTracker
 
     private void SetTeams(List<CCSPlayerController>? terrorists, List<CCSPlayerController>? counterTerrorists)
     {
-        terrorists ??= new List<CCSPlayerController>();
-        counterTerrorists ??= new List<CCSPlayerController>();
+        terrorists ??= [];
+        counterTerrorists ??= [];
 
         foreach (var player in QueueManager.ActivePlayers.Where(Helpers.IsValidPlayer))
         {
