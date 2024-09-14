@@ -225,7 +225,8 @@ public class GameManager : IRetakesRoundTracker
             ScrambleTeams();
         }
 
-        var players = QueueManager.ActivePlayers.Where( Helpers.IsValidPlayer )
+        var players = Utilities.GetPlayers()
+            .Where( Helpers.IsValidPlayer )
             .ToArray();
 
         var terrorists = players
