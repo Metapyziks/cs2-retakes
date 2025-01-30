@@ -9,10 +9,6 @@ If you appreciate the project then please take the time to star the repository ð
 
 ![Star us](https://github.com/b3none/gdprconsent/raw/development/.github/README_ASSETS/star_us.png)
 
-## Server Hosting (Discounted)
-
-Looking for reliable server hosting? [Dathost](https://dathost.net/r/b3none/cs2-server-hosting) offers top-tier performance, easy server management, and excellent support, with servers available in multiple regions across the globe. Whether you're in North America, Europe, Asia, or anywhere else, [Dathost](https://dathost.net/r/b3none/cs2-server-hosting) has you covered. Use [this link](https://dathost.net/r/b3none/cs2-server-hosting) to get **30% off your first month**. Click [here]( https://dathost.net/r/b3none/cs2-server-hosting) to get started with the discount!
-
 ## Features / Roadmap
 - [x] Bombsite selection
 - [x] Per map configurations
@@ -40,6 +36,7 @@ Looking for reliable server hosting? [Dathost](https://dathost.net/r/b3none/cs2-
 ## Recommendations
 I also recommend installing these plugins for an improved player experience
 - Instadefuse: https://github.com/B3none/cs2-instadefuse
+- Retakes Zones (prevent silly flanks / rotations): https://github.com/oscar-wos/Retakes-Zones
 - Clutch Announce: https://github.com/B3none/cs2-clutch-announce
 - Instaplant (if not using autoplant): https://github.com/B3none/cs2-instaplant
 
@@ -65,10 +62,13 @@ When the plugin is first loaded it will create a `retakes_config.json` file in t
 | ShouldBreakBreakables                             | Whether to break all breakable props on round start (People are noticing rare crashes when this is enabled).                                    | false      | false      | true       |
 | ShouldOpenDoors                                   | Whether to open doors on round start (People are noticing rare crashes when this is enabled).                                                   | false      | false      | true       |
 | IsAutoPlantEnabled                                | Whether to enable auto bomb planting at the start of the round or not.                                                                          | true       | false      | true       |
+| QueuePriorityFlag                                 | A comma separated list of CSS flags for queue priority.                                                                                         | @css/vip   | n/a        | n/a        |
 | IsDebugMode                                       | Whether to enable debug output to the server console or not.                                                                                    | false      | false      | true       |
 | ShouldForceEvenTeamsWhenPlayerCountIsMultipleOf10 | Whether to force even teams when the active players is a multiple of 10 or not. (this means you will get 5v5 @ 10 players / 10v10 @ 20 players) | true       | false      | true       |
 | EnableFallbackBombsiteAnnouncement                | Whether to enable the fallback bombsite announcement.                                                                                           | true       | false      | true       |
 | ShouldRemoveSpectators                            | When a player is moved to spectators, remove them from all retake queues. Ensures that AFK plugins work as expected.                            | false      | false      | true       |
+| IsBalanceEnabled                                  | Whether to enable the default team balancing mechanic.                                                                                          | true       | false      | true       |
+| ShouldPreventTeamChangesMidRound                  | Whether or not to prevent players from switching teams at any point during the round.                                                           | true       | false      | true       |
 
 ## Commands
 | Command            | Arguments                         | Description                                                          | Permissions |
@@ -93,3 +93,7 @@ Subscribe to **release** notifications and stay up to date with the latest featu
 
 ## Credits
 This was inspired by the [CS:GO Retakes project](https://github.com/splewis/csgo-retakes) written by [splewis](https://github.com/splewis).
+
+## Server Hosting (Discounted)
+
+Looking for reliable server hosting? [Dathost](https://dathost.net/r/b3none/cs2-server-hosting) offers top-tier performance, easy server management, and excellent support, with servers available in multiple regions across the globe. Whether you're in North America, Europe, Asia, or anywhere else, [Dathost](https://dathost.net/r/b3none/cs2-server-hosting) has you covered. Use [this link](https://dathost.net/r/b3none/cs2-server-hosting) to get **30% off your first month**. Click [here]( https://dathost.net/r/b3none/cs2-server-hosting) to get started with the discount!
