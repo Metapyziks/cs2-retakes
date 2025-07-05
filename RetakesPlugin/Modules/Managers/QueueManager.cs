@@ -72,9 +72,9 @@ public class QueueManager
                 return HookResult.Continue;
             }
 
-            if (!_shouldPreventTeamChangesMidRound)
+            if (!_shouldPreventTeamChangesMidRound || Helpers.GetGameRules().WarmupPeriod)
             {
-                Helpers.Debug($"[{player.PlayerName}] Preventing team changes mid round is disabled, allowing team change.");
+                Helpers.Debug($"[{player.PlayerName}] Preventing team changes mid round is disabled or warmup is active, allowing team change.");
                 return HookResult.Continue;
             }
 
@@ -255,6 +255,11 @@ public class QueueManager
 
             foreach (var player in QueuePlayers)
             {
+                if (!Helpers.IsValidPlayer(player))
+                {
+                    continue;
+                }
+                
                 player.PrintToChat($"{RetakesPlugin.MessagePrefix}{waitingMessage}");
             }
         }
